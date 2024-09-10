@@ -11,7 +11,7 @@ def mesesMatriz(mes):
         case 2:
             dias = 28
     return dias
-
+reservas = [] ## matriz de reservas
 
 # crea la matriz del año
 def creacionMatrizFechas():
@@ -47,8 +47,6 @@ def mostrarDisponibilidadMensual(mes):
     for fila in filas:
         print(' '.join(f"{str(dia):>3}" for dia in fila))
 
-## def chequearDisponibidad(mes, dia):
-
 
 ## función para iniciar con una reserva
 def tomaDeReservas():
@@ -60,7 +58,16 @@ def tomaDeReservas():
     
     mostrarDisponibilidadMensual(mesDeBusqueda)
     
-    diaReservado = int (input("Ingrese la que quiere reservar"))
+    diaReservado = int(input("Ingrese el dia que quiere reservar"))
+    
+    while diaReservado < 1 or diaReservado > mesesMatriz(mesDeBusqueda):
+        diaReservado = int(input("Ingrese el dia que quiere reservar"))
+    ## falta agregar logica para buscar en la matriz de reservas si ya esta reservada la fecha
+    ## quizá podriamos agregar nombre y apellido para que quede un poco mas llena la matriz
         
-
+    reservas.append([len(reservas), mesDeBusqueda, diaReservado])
+    
+    print(reservas)
+    
+    
 tomaDeReservas()
