@@ -1,3 +1,5 @@
+import math
+
 # define la can de dias de cada mes
 def mesesMatriz(mes):
     dias = 31
@@ -23,12 +25,42 @@ def creacionMatrizFechas():
         matriz.append(fila)
     print(matriz)
 
-    
+## muestra calendario mensual con una X en los dias no disponibles
+def mostrarDisponibilidadMensual(mes):
+    dias_ocupados = [1, 10, 9, 10]
+    dias = mesesMatriz(mes)
+    filas = []
 
+    for dia in range(1, dias + 1, 7):
+        nueva_fila = []
+
+        for d in range(dia, dia + 7):
+            if d <= dias:
+                nueva_fila.append(d if d not in dias_ocupados else 'X')
+
+        filas.append(nueva_fila)
+    
+    print("Los dias no disponibles se marcaran con una X", "\n")
+    
+    print("Lun Mar Mie Jue Vie Sab Dom")
+    
+    for fila in filas:
+        print(' '.join(f"{str(dia):>3}" for dia in fila))
+
+## def chequearDisponibidad(mes, dia):
+
+
+## función para iniciar con una reserva
 def tomaDeReservas():
     meses = [1,2,3,4,5,6,7,8,9,10,11,12]
-    mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva :"))
-    while mesDeBusqueda not in meses:
-        mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva :"))
-    print("Mes elegido : ", mesDeBusqueda)
+    mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva: "))
     
+    while mesDeBusqueda not in meses:
+        mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva: "))
+    
+    mostrarDisponibilidadMensual(mesDeBusqueda)
+    
+    diaReservado = int (input("Ingrese la que quiere reservar"))
+        
+
+tomaDeReservas()
