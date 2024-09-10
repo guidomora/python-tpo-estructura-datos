@@ -26,8 +26,8 @@ def creacionMatrizFechas():
     print(matriz)
 
 ## muestra calendario mensual con una X en los dias no disponibles
-def mostrarDisponibilidadMensual(mes):
-    dias_ocupados = [1, 10, 9, 10]
+def mostrarDisponibilidadMensual(mes, dias_ocupados):
+    # dias_ocupados = [1, 10, 9, 10]
     dias = mesesMatriz(mes)
     filas = []
 
@@ -47,25 +47,38 @@ def mostrarDisponibilidadMensual(mes):
     for fila in filas:
         print(' '.join(f"{str(dia):>3}" for dia in fila))
 
+def creacionUsuario():
+    user_name = input("Bienvenido al siestema de reserva de salas de reuniones. Para empezar con el registro, escriba su nombre de usuario: ")
+    while len(user_name) < 3:
+        user_name = input("Error. El nombre de usuario debe ser mayor a 3 caracteres :")
+    return user_name
 
 ## función para iniciar con una reserva
 def tomaDeReservas():
+    dias_ocupados = [1, 10, 9, 10]
     meses = [1,2,3,4,5,6,7,8,9,10,11,12]
-    mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva: "))
+    user = creacionUsuario()
+    
+    
+    user
+    mesDeBusqueda = int(input("A continuación ingrese el numero del mes en el que le gustaria realizar la reserva: "))
     
     while mesDeBusqueda not in meses:
         mesDeBusqueda = int(input("Bienvenido! a continuación ingrese el numero del mes en el que le gustaria realizar la reserva: "))
     
-    mostrarDisponibilidadMensual(mesDeBusqueda)
+    mostrarDisponibilidadMensual(mesDeBusqueda, dias_ocupados)
     
-    diaReservado = int(input("Ingrese el dia que quiere reservar"))
+    diaReservado = int(input("Ingrese el dia que quiere reservar: "))
     
     while diaReservado < 1 or diaReservado > mesesMatriz(mesDeBusqueda):
-        diaReservado = int(input("Ingrese el dia que quiere reservar"))
-    ## falta agregar logica para buscar en la matriz de reservas si ya esta reservada la fecha
-    ## quizá podriamos agregar nombre y apellido para que quede un poco mas llena la matriz
-        
-    reservas.append([len(reservas), mesDeBusqueda, diaReservado])
+        diaReservado = int(input("Dia inexistente. Ingrese el dia que quiere reservar: "))
+    
+    # chequea si el dia esta reservado
+    while diaReservado in dias_ocupados:
+        diaReservado = int(input("El dia ingresado no se encuentra disponible, ingrese otro dia: "))
+    dias_ocupados.append(diaReservado)
+    print(dias_ocupados)
+    reservas.append([len(reservas), mesDeBusqueda, diaReservado, user])
     
     print(reservas)
     
