@@ -1,4 +1,5 @@
 import math
+import random
 
 # define la can de dias de cada mes
 def mesesMatriz(mes):
@@ -11,9 +12,72 @@ def mesesMatriz(mes):
         case 2:
             dias = 28
     return dias
+
+def obtenerNombreMes(mes):
+    match mes:
+        case 1:
+            nombre_mes = 'Enero'
+        case 2:
+            nombre_mes = 'Febrero'
+        case 3:
+            nombre_mes = 'Marzo'
+        case 4:
+            nombre_mes = 'Abril'
+        case 5:
+            nombre_mes = 'Mayo'
+        case 6:
+            nombre_mes = 'Junio'
+        case 7:
+            nombre_mes = 'Julio'
+        case 8:
+            nombre_mes = 'Agosto'
+        case 9:
+            nombre_mes = 'Septiembre'
+        case 10:
+            nombre_mes = 'Octubre'
+        case 11:
+            nombre_mes = 'Noviembre'
+        case 12:
+            nombre_mes = 'Diciembre'
+    
+    return nombre_mes
+
 reservas = [] ## matriz de reservas
 
-# crea la matriz del año
+def chequearDisponibilad(mes, dia):
+    esta_disponible = True
+    for reserva in reservas:
+        if(reserva[1] == mes and reserva[2] == dia):
+            esta_disponible = False
+            break
+    return esta_disponible
+
+def obtenerDiasOcupadosPorMes(mes):
+    dias_ocupados = []
+    for reserva in reservas:
+        if(reserva[1] == mes):
+            dias_ocupados.append(reserva[2])
+    return dias_ocupados
+    
+def generarReservasRandom(cantidad, reservas):
+    for i in range(cantidad):
+        reserva = []
+        mes = random.randint(1,12)
+        reserva.append(mes)
+        dia = random.randint(1, mesesMatriz(mes))
+        esta_disponible = chequearDisponibilad(mes, dia)
+        if(esta_disponible):
+            reservas.append([len(reservas), mes, dia])
+        
+generarReservasRandom(10, reservas)
+
+## print todas las reservas matriz // podriamos agregar una que filtre por mes
+def mostrarReservas():
+    print(f'{"ID":<3} {"Mes":<10} {"Día":<10}')
+    for reserva in reservas:
+        print(f'{reserva[0]:<3} {obtenerNombreMes(reserva[1]):<10} {reserva[2]:<10}')
+        
+# crea la matriz del año // no la usamos en ningún lado creo(soy dylan)
 def creacionMatrizFechas():
     filas = 12
     matriz = []
@@ -55,13 +119,14 @@ def creacionUsuario():
 
 ## función para iniciar con una reserva
 def tomaDeReservas(mes_de_busqueda, user):
-    dias_ocupados = [1, 10, 9, 10]
     meses = [1,2,3,4,5,6,7,8,9,10,11,12]
     
     while mes_de_busqueda not in meses:
         mes_de_busqueda = int(input("Ingrese el numero del mes en el que le gustaria realizar la reserva o ingrese -1 para finalizar: "))
     
-    mostrarDisponibilidadMensual(mes_de_busqueda, dias_ocupados)
+    dias_ocupados = obtenerDiasOcupadosPorMes(mes_de_busqueda) ## devuelve array con los dias ocupados en ese mes
+
+    mostrarDisponibilidadMensual(mes_de_busqueda, dias_ocupados) 
     
     diaReservado = int(input("Ingrese el dia que quiere reservar: "))
     
@@ -71,10 +136,12 @@ def tomaDeReservas(mes_de_busqueda, user):
     # chequea si el dia esta reservado
     while diaReservado in dias_ocupados:
         diaReservado = int(input("El dia ingresado no se encuentra disponible, ingrese otro dia: "))
+        
     dias_ocupados.append(diaReservado)
+    
     reservas.append([len(reservas), mes_de_busqueda, diaReservado, user])
     
-    print(reservas)
+    mostrarReservas()
     
     
 
