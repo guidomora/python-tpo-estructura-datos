@@ -140,14 +140,14 @@ def tomaDeReservas(mes_de_busqueda, user):
     dias_ocupados.append(diaReservado)
     
     reservas.append([len(reservas), mes_de_busqueda, diaReservado, user])
-    
+    print(reservas)
     mostrarReservas()
     
     
 
 def main():
     user = creacionUsuario()
-    continuar = True  # Variable para controlar si continúa reservando
+    continuar = True
     while continuar:
         mes_de_busqueda = int(input("A continuación ingrese el numero del mes en el que le gustaria realizar la reserva, ingrese -1 para finalizar: "))
         
@@ -156,10 +156,9 @@ def main():
         
         tomaDeReservas(mes_de_busqueda, user)
         
-        # Pregunta si desea hacer otra reserva
         respuesta = int(input("Le gustaria hacer otra reserva? 1 Si, 2 No: "))
         
-        if respuesta != 1:  # Si no responde "s", termina el ciclo
+        if respuesta != 1: 
             continuar = False
 
     print("Gracias por usar el sistema de reservas. Fin.")    
