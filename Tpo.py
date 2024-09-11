@@ -78,16 +78,16 @@ def mostrarReservas():
         print(f'{reserva[0]:<3} {obtenerNombreMes(reserva[1]):<10} {reserva[2]:<10}')
         
 # crea la matriz del año // no la usamos en ningún lado creo(soy dylan)
-def creacionMatrizFechas():
-    filas = 12
-    matriz = []
-    for i in range(1, filas + 1):
-        fila = []
-        dias = mesesMatriz(i)
-        for c in range(dias):
-            fila.append(c + 1)
-        matriz.append(fila)
-    print(matriz)
+# def creacionMatrizFechas():
+#     filas = 12
+#     matriz = []
+#     for i in range(1, filas + 1):
+#         fila = []
+#         dias = mesesMatriz(i)
+#         for c in range(dias):
+#             fila.append(c + 1)
+#         matriz.append(fila)
+#     print(matriz)
 
 ## muestra calendario mensual con una X en los dias no disponibles
 def mostrarDisponibilidadMensual(mes, dias_ocupados):
@@ -133,7 +133,6 @@ def tomaDeReservas(mes_de_busqueda, user):
     while diaReservado < 1 or diaReservado > mesesMatriz(mes_de_busqueda):
         diaReservado = int(input("Dia inexistente. Ingrese el dia que quiere reservar: "))
     
-    # chequea si el dia esta reservado
     while diaReservado in dias_ocupados:
         diaReservado = int(input("El dia ingresado no se encuentra disponible, ingrese otro dia: "))
         
