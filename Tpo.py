@@ -66,19 +66,20 @@ def generarReservasRandom(cantidad, reservas, anio):
 
 # Muestra las reservas.
 def mostrarReservas():
-    print("ID   Mes         Día   Año")
+    print("ID   Mes         Día   Año    Usuario")
     for reserva in reservas:
         id_reserva = reserva[0]
         mes_reserva = obtenerNombreMes(reserva[1])
         dia_reserva = reserva[2]
         anio_reserva = reserva[3]
+        usuario = reserva[4]
 
         # Agrega los espacios para que quede bonito.
         print(
             " " * (3 - len(str(id_reserva))) + "%d" % id_reserva + "  " +
             mes_reserva + " " * (12 - len(mes_reserva)) +
             " " * (5 - len(str(dia_reserva))) + "%d" % dia_reserva +
-            "  " + "%d" % anio_reserva
+            "  " + "%d" % anio_reserva, usuario
         )
 
 # Muestra los días disponibles, los días ocupados son marcados con 'X'.
@@ -104,7 +105,7 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
 
 # Función para crear un usuario.
 def creacionUsuario():
-    user_name = input("Bienvenido al sistema de reserva de salas de reuniones. Para empezar con el registro, escriba su nombre y apellido: ")
+    user_name = input("Ingrese el nombre y apellido del usuario que reservó la sala: ")
     while len(user_name) < 3:
         user_name = input("Error. El nombre de usuario debe ser mayor a 3 caracteres: ")
     return user_name
@@ -133,9 +134,10 @@ def tomaDeReservas(mes_de_busqueda, anio_de_reserva, user):
 
 # Función principal.
 def main():
-    user = creacionUsuario()
+    print("Bienvenido al sistema de reserva de salas de reuniones.")
     continuar = True
     while continuar:
+        user = creacionUsuario()
         anio_de_reserva = int(input("Ingrese el año de la reserva: "))
         mes_de_busqueda = int(input("Ingrese el número del mes en el que le gustaría realizar la reserva o ingrese -1 para finalizar: "))
 
