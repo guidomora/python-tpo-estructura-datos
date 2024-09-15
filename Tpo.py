@@ -92,7 +92,6 @@ def mostrarReservas():
         mes_reserva = obtenerNombreMes(reserva[mes_index])
         dia_reserva = reserva[dia_index]
         anio_reserva = reserva[año_index]
-
         print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}')
 
 mostrarReservas()
@@ -124,6 +123,28 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
         for dia in fila:
             fila_formateada += " " * (3 - len(dia)) + dia
         print(fila_formateada)
+        
+def filtrarReservasPorMes(reservas, mes):
+    reservasPorMes = []
+    for reserva in reservas:
+        if reserva[1] == mes:
+            reservasPorMes.append(reserva)
+    print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}")
+    for reserva in reservasPorMes:
+        id_reserva = reserva[id_index]
+        mes_reserva = obtenerNombreMes(reserva[mes_index])
+        dia_reserva = reserva[dia_index]
+        anio_reserva = reserva[año_index]
+
+        print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}')
+
+def eliminarReserva(reservas, id):
+    for reserva in reservas:
+        if reserva[0] == id:
+            reservas.remove(reserva)
+    print("Reserva eliminada exitosamente")
+    mostrarReservas()
+    
 
 # Función para crear un usuario.
 def creacionUsuario():
@@ -179,6 +200,14 @@ def main():
 
         if(opcion == 2):
             mostrarReservas()
+        
+        if(opcion == 3):
+            id = inputEnteroConSalida(-1, 0, 1000, "Ingrese el numero de id de la reserva a eliminar: ")
+            eliminarReserva(reservas, id)
+            
+        if(opcion == 4):
+            mes = inputEnteroConSalida(-1, 1,12, "Ingrese el numero del mes que quiere buscar: ")
+            filtrarReservasPorMes(reservas, mes)
             
         respuesta = int(input("¿Le gustaría utilizar otra opción? 1. Sí  2. No: "))
 
