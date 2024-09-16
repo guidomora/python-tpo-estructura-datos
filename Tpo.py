@@ -11,10 +11,10 @@ usuarios = []
 reservas = []
 
 # INDEX DE CADA VALOR
-año_index = 3;
-dia_index = 2;
-mes_index = 1;
-id_index = 0;
+año_index = 3
+dia_index = 2
+mes_index = 1
+id_index = 0
 
 # Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
@@ -147,11 +147,7 @@ def eliminarReserva(reservas, id):
     
 
 # Función para crear un usuario.
-def creacionUsuario():
-    user_name = input("Ingrese el nombre y apellido del usuario que reservó la sala: ")
-    while len(user_name) < 3:
-        user_name = input("Error. El nombre de usuario debe ser mayor a 3 caracteres: ")
-    return user_name
+
 
 def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
     value = int(input(texto))        
@@ -179,7 +175,7 @@ def tomaDeReservas():
     while dia_reservado not in range(1, mesesMatriz(mes_de_busqueda, anio_de_reserva)) or dia_reservado in dias_ocupados:
         dia_reservado = int(input("Día no disponible o inválido. Ingrese otro día: "))
     
-    nombre_reserva = input("Ingrese nombre de la reserva");
+    nombre_reserva = input("Ingrese nombre de la reserva: ")
     reservas.append([len(reservas) + 1, mes_de_busqueda, dia_reservado, anio_de_reserva, nombre_reserva])
     mostrarReservas()
 
