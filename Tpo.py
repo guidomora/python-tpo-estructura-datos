@@ -1,29 +1,21 @@
-"""Esta es la función "fusiona" la anterior con la que hice yo aparte. Agrega cosas como el año, la posibilidad de detectar si ese año es bisiesto, aparte acomode un toque las cosas
-y aproveché para "aclarar" para que sirve cada función. Feli."""
+
  
 
 import random
 
-# Lista para almacenar usuarios.
 usuarios = []
-
-# Lista para almacenar las reservas realizadas.
 reservas = []
+año_index = 3
+dia_index = 2
+mes_index = 1
+id_index = 0
 
-# INDEX DE CADA VALOR
-año_index = 3;
-dia_index = 2;
-mes_index = 1;
-id_index = 0;
-
-# Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
     if anio % 4 == 0:
         if anio % 100 != 0 or anio % 400 == 0:
             return True
     return False
 
-# Función que define la cantidad de días que hay en un mes.
 def mesesMatriz(mes, anio):
     dias = 31
     match mes:
@@ -35,7 +27,7 @@ def mesesMatriz(mes, anio):
             dias = 28 if not esBisiesto(anio) else 29
     return dias
 
-# Función que aclara el nombre del mes.
+
 def obtenerNombreMes(mes):
     match mes:
         case 1:
@@ -71,7 +63,6 @@ def chequearDisponibilad(mes, dia, anio):
             break
     return esta_disponible
 
-# Función para generar reservas aleatorias.
 def generarReservasRandom(cantidad, reservas, anio):
     for i in range(cantidad):
         reserva = []
@@ -84,7 +75,7 @@ def generarReservasRandom(cantidad, reservas, anio):
 
 generarReservasRandom(10, reservas, 2023)
 
-# Muestra las reservas.
+
 def mostrarReservas():
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}")
     for reserva in reservas:
@@ -103,7 +94,7 @@ def obtenerDiasOcupadosPorMes(mes, anio):
             dias_ocupados.append(reserva[2])
     return dias_ocupados
 
-# Muestra los días disponibles, los días ocupados son marcados con 'X'.
+
 def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
     dias = mesesMatriz(mes, anio)
     filas = []
@@ -146,7 +137,6 @@ def eliminarReserva(reservas, id):
     mostrarReservas()
     
 
-# Función para crear un usuario.
 def creacionUsuario():
     user_name = input("Ingrese el nombre y apellido del usuario que reservó la sala: ")
     while len(user_name) < 3:
@@ -156,12 +146,11 @@ def creacionUsuario():
 def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
     value = int(input(texto))        
     rangoDeValor = list(range(valor_minimo, valor_maximo + 1))
-    while value not in rangoDeValor and value != numero_salida:  # Corrección en la condición
+    while value not in rangoDeValor and value != numero_salida: 
         value = int(input(texto))
     return value
     
 
-# Función para tomar reservas.
 def tomaDeReservas():
     mes_de_busqueda = inputEnteroConSalida(-1, 1, 12,"Ingrese el número del mes en el que le gustaría realizar la reserva o ingrese -1 para finalizar: ")
       
@@ -170,7 +159,7 @@ def tomaDeReservas():
     
     anio_de_reserva = int(input("Ingrese el año de la reserva: "))
     
-    dias_ocupados = obtenerDiasOcupadosPorMes(mes_de_busqueda, anio_de_reserva) ## devuelve array con los dias ocupados en ese mes
+    dias_ocupados = obtenerDiasOcupadosPorMes(mes_de_busqueda, anio_de_reserva) 
 
     mostrarDisponibilidadMensual(mes_de_busqueda, dias_ocupados, anio_de_reserva)
 
@@ -179,12 +168,11 @@ def tomaDeReservas():
     while dia_reservado not in range(1, mesesMatriz(mes_de_busqueda, anio_de_reserva)) or dia_reservado in dias_ocupados:
         dia_reservado = int(input("Día no disponible o inválido. Ingrese otro día: "))
     
-    nombre_reserva = input("Ingrese nombre de la reserva");
+    nombre_reserva = input("Ingrese nombre de la reserva")
     reservas.append([len(reservas) + 1, mes_de_busqueda, dia_reservado, anio_de_reserva, nombre_reserva])
     mostrarReservas()
 
 
-# Función principal.
 def main():
     print("Bienvenido al sistema de reserva de salas de reuniones.")
     continuar = True
