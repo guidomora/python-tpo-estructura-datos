@@ -71,7 +71,7 @@ def generarReservasRandom(cantidad, reservas, anio):
         dia = random.randint(1, mesesMatriz(mes, anio))
         esta_disponible = chequearDisponibilad(mes, dia, anio)
         if(esta_disponible):
-            reservas.append([len(reservas), mes, dia, anio])
+            reservas.append([len(reservas)+1, mes, dia, anio])
 
 generarReservasRandom(10, reservas, 2023)
 
