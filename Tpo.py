@@ -107,12 +107,12 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
         filas.append(nueva_fila)
 
     print("Los días no disponibles se marcarán con una 'X'.")
-    print("Lun Mar Mie Jue Vie Sab Dom")
+    print(" Lun Mar Mie Jue Vie Sab Dom")
 
     for fila in filas:
         fila_formateada = ""
         for dia in fila:
-            fila_formateada += " " * (3 - len(dia)) + dia
+            fila_formateada += " " * (4 - len(dia)) + dia
         print(fila_formateada)
         
 def filtrarReservasPorMes(reservas, mes):
