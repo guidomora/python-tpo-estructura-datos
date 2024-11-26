@@ -102,11 +102,9 @@ def generarReservasRandom(cantidad, reservas, anio):
     fecha_actual = obtenerFechaActual()
 
     for i in range(cantidad):
-        while True:  # Generar fechas hasta encontrar una válida
-            mes = random.randint(fecha_actual["mes"], 12)  # Desde el mes actual
-            dia = random.randint(1, mesesMatriz(mes, anio))  # Día válido para el mes
-
-            # Si estamos en el mes actual, validar que el día sea igual o posterior al actual
+        while True:
+            mes = random.randint(fecha_actual["mes"], 12)
+            dia = random.randint(1, mesesMatriz(mes, anio))
             if mes > fecha_actual["mes"] or (mes == fecha_actual["mes"] and dia >= fecha_actual["dia"]):
                 # Verificar disponibilidad
                 esta_disponible = chequearDisponibilad(mes, dia, anio)
