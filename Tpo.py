@@ -167,11 +167,25 @@ def filtrarReservasPorMes(reservas, mes):
 
         print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}')
 
+# def eliminarReserva(reservas, id):
+#     for reserva in reservas:
+#         if reserva[0] == id:
+#             reservas.remove(reserva)
+#     print(reservas)
+#     print("Reserva eliminada exitosamente")
+#     mostrarReservas()
+
 def eliminarReserva(reservas, id):
+    id_existe = False
     for reserva in reservas:
         if reserva[0] == id:
-            reservas.remove(reserva)
-    print("Reserva eliminada exitosamente")
+            id_existe = True
+            break
+    if id_existe:
+        reservas[:] = [reserva for reserva in reservas if reserva[0] != id]
+        print("Reserva eliminada exitosamente")
+    else:
+        print(f"No se encontró una reserva con el ID {id}")
     mostrarReservas()
     
 
@@ -182,11 +196,17 @@ def creacionUsuario():
     return user_name
 
 def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
-    value = int(input(texto))        
-    rangoDeValor = list(range(valor_minimo, valor_maximo + 1))
-    while value not in rangoDeValor and value != numero_salida: 
-        value = int(input(texto))
-    return value
+    while True:
+        try:
+            value = int(input(texto))
+            rangoDeValor = list(range(valor_minimo, valor_maximo + 1))
+            if value in rangoDeValor or value == numero_salida:
+                return value 
+            else:
+                print(f"Por favor, ingrese un número valido.")
+        except ValueError:
+            print("Entrada no válida. Por favor, ingrese un número valido.")
+
     
 
 def tomaDeReservas():
@@ -235,7 +255,7 @@ def main():
             mes = inputEnteroConSalida(-1, 1,12, "Ingrese el numero del mes que quiere buscar: ")
             filtrarReservasPorMes(reservas, mes)
             
-        respuesta = int(input("¿Le gustaría utilizar otra opción? 1. Sí  2. No: "))
+        respuesta = inputEnteroConSalida(-1, 1, 2, "¿Desea continuar? Ingrese 1 para continuar o -1 para salir: ")
 
         if respuesta != 1:
             continuar = False
