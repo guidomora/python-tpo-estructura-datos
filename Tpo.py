@@ -1,6 +1,6 @@
 
  
-
+from datetime import datetime
 import random
 
 usuarios = []
@@ -63,18 +63,58 @@ def chequearDisponibilad(mes, dia, anio):
             break
     return esta_disponible
 
+# def obtenerFechaActual():
+#     """Devuelve la fecha actual como un diccionario con día, mes y año."""
+#     ahora = datetime.now()  # Obtiene la fecha y hora actual
+#     return {
+#         "mes": obtenerNombreMes(ahora.month),
+#         "dia": ahora.day,
+#         "anio": ahora.year
+#     }
+
+# # Ejemplo de uso:
+# fecha_actual = obtenerFechaActual()
+# print(f"Hoy es {fecha_actual['dia']}/{fecha_actual['mes']}/{fecha_actual['anio']}")
+
+
+
+# def generarReservasRandom(cantidad, reservas, anio):
+#     for i in range(cantidad):
+#         reserva = []
+#         mes = random.randint(1,12)
+#         reserva.append(mes)
+#         dia = random.randint(1, mesesMatriz(mes, anio))
+#         esta_disponible = chequearDisponibilad(mes, dia, anio)
+#         if(esta_disponible):
+#             reservas.append([len(reservas), mes, dia, anio])
+
+# generarReservasRandom(10, reservas, 2024)
+
+def obtenerFechaActual():
+    ahora = datetime.now()
+    return {
+        "mes": ahora.month,
+        "dia": ahora.day,
+        "anio": ahora.year
+    }
+
 def generarReservasRandom(cantidad, reservas, anio):
+    fecha_actual = obtenerFechaActual()
+
     for i in range(cantidad):
-        reserva = []
-        mes = random.randint(1,12)
-        reserva.append(mes)
-        dia = random.randint(1, mesesMatriz(mes, anio))
-        esta_disponible = chequearDisponibilad(mes, dia, anio)
-        if(esta_disponible):
-            reservas.append([len(reservas), mes, dia, anio])
+        while True:  # Generar fechas hasta encontrar una válida
+            mes = random.randint(fecha_actual["mes"], 12)  # Desde el mes actual
+            dia = random.randint(1, mesesMatriz(mes, anio))  # Día válido para el mes
 
-generarReservasRandom(10, reservas, 2023)
+            # Si estamos en el mes actual, validar que el día sea igual o posterior al actual
+            if mes > fecha_actual["mes"] or (mes == fecha_actual["mes"] and dia >= fecha_actual["dia"]):
+                # Verificar disponibilidad
+                esta_disponible = chequearDisponibilad(mes, dia, anio)
+                if esta_disponible:
+                    reservas.append([len(reservas), mes, dia, anio])
+                    break  # Salir del ciclo while
 
+generarReservasRandom(10, reservas, 2024)
 
 def mostrarReservas():
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}")
