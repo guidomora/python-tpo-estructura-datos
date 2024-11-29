@@ -3,11 +3,7 @@ import random
 
 usuarios = []
 reservas = []
-apellido_index = 4
-año_index = 3
-dia_index = 2
-mes_index = 1
-id_index = 0
+
 
 def esBisiesto(anio):
     if anio % 4 == 0:
@@ -59,7 +55,7 @@ def obtenerNombreMes(mes):
 def chequearDisponibilad(mes, dia, anio):
     esta_disponible = True
     for reserva in reservas:
-        if(reserva[1] == mes and reserva[2] == dia and reserva[3] == anio):
+        if(reserva["fecha"]["mes"] == mes and reserva["fecha"]["dia"] == dia and reserva["fecha"]["año"] == anio):
             esta_disponible = False
             break
     return esta_disponible
@@ -78,40 +74,49 @@ def generarReservasRandom(cantidad, reservas, anio):
     personas = ["Torrez","Alvarez","Ramon","Gallego","Corral","Merlo","Von Reth","Rossi","Guerrero","Morales"]
 
     for i in range(cantidad):
-        while True:
-            anio = random.randint(2024,2025)
-            mes = random.randint(1, 12)
-            dia = random.randint(1, mesesMatriz(mes, anio))
-            
-            if (anio == fecha_actual["anio"] and mes > fecha_actual["mes"] and dia > fecha_actual["dia"]) or (anio > fecha_actual["anio"] and mes < fecha_actual["mes"] and dia < fecha_actual["dia"]):
-                # Verificar disponibilidad
-                esta_disponible = chequearDisponibilad(mes, dia, anio)
-                if esta_disponible:
-                    persona = random.choice(personas)
-                    reservas.append([len(reservas)+1, mes, dia, anio,persona])
-                    break  # Salir del ciclo while
+        anio = random.randint(2024,2025)
+        mes = random.randint(1, 12)
+        dia = random.randint(1, mesesMatriz(mes, anio))            
+        if (anio == fecha_actual["anio"] 
+            and mes > fecha_actual["mes"] 
+            and dia > fecha_actual["dia"]) or (anio > fecha_actual["anio"] 
+            and mes < fecha_actual["mes"] and dia < fecha_actual["dia"]):
+            # Verificar disponibilidad
+            esta_disponible = chequearDisponibilad(mes, dia, anio)
+            if esta_disponible:
+                persona = random.choice(personas)
+                nueva_reserva = {
+                    "fecha": {
+                        "dia": dia,
+                        "mes": mes,
+                        "año": anio
+                    },
+                    "apellido": persona,
+                    "id": len(reservas)
+                }
+                reservas.append(nueva_reserva)
 
 generarReservasRandom(10, reservas, 2024)
 
-def mostrarReservas():
+def mostrarReservas(reservas):
     print("-"*50)
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}{'USUARIO':<10}")
     for reserva in reservas:
-        id_reserva = reserva[id_index]
-        mes_reserva = obtenerNombreMes(reserva[mes_index])
-        dia_reserva = reserva[dia_index]
-        anio_reserva = reserva[año_index]
-        nom_reserva = reserva[apellido_index]
+        id_reserva = reserva["id"]
+        mes_reserva = obtenerNombreMes(reserva["fecha"]["mes"])
+        dia_reserva = reserva["fecha"]["dia"]
+        anio_reserva = reserva["fecha"]["año"]
+        nom_reserva = reserva["apellido"]
 
         print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}{nom_reserva:<10}')
 
-mostrarReservas()
+mostrarReservas(reservas)
 
 def obtenerDiasOcupadosPorMes(mes, anio):
     dias_ocupados = []
     for reserva in reservas:
-        if(reserva[mes_index] == mes and reserva[año_index] == anio):
-            dias_ocupados.append(reserva[2])
+        if(reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio):
+            dias_ocupados.append(reserva["fecha"]["dia"])
     return dias_ocupados
 
 
@@ -137,34 +142,37 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
         print(fila_formateada)
 
 
-def filtrarReservas(reservas, busqueda, limite):
+def filtrarReservas(reservas, busqueda, clave_filtro):
     reservas_filtro = []
     for reserva in reservas:
-        if reserva[limite] == busqueda:
-            reservas_filtro.append(reserva)
+        if(clave_filtro == "mes" or clave_filtro == "año"):
+            if reserva["fecha"][clave_filtro] == busqueda:
+                reservas_filtro.append(reserva)
+        else:
+            if reserva[clave_filtro] == busqueda:
+                reservas_filtro.append(reserva)
+
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}{'USUARIO':<10}")
     for reserva in reservas_filtro:
-        id_reserva = reserva[id_index]
-        mes_reserva = obtenerNombreMes(reserva[mes_index])
-        dia_reserva = reserva[dia_index]
-        anio_reserva = reserva[año_index]
-        nom_reserva = reserva[apellido_index]
+        id_reserva = reserva["id"]
+        mes_reserva = obtenerNombreMes(reserva["fecha"]["mes"])
+        dia_reserva = reserva["fecha"]["dia"]
+        anio_reserva = reserva["fecha"]["año"]
+        nom_reserva = reserva["apellido"]
 
         print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}{nom_reserva:<10}')
     
 
 def eliminarReserva(reservas, id):
-    id_existe = False
-    for reserva in reservas:
-        if reserva[0] == id:
-            id_existe = True
-            break
+    id_existe = any(reserva["id"] == id for reserva in reservas)
+
     if id_existe:
-        reservas[:] = [reserva for reserva in reservas if reserva[0] != id]
+        # Filtramos las reservas que no tienen el ID que queremos eliminar.
+        reservas = list(filter(lambda reserva: reserva["id"] != id, reservas))
         print("Reserva eliminada exitosamente")
     else:
         print(f"No se encontró una reserva con el ID {id}")
-    mostrarReservas()
+    mostrarReservas(reservas)
     
 
 def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
@@ -179,8 +187,8 @@ def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
         except ValueError:
             print("Entrada no válida. Por favor, ingrese un número valido.")
 
-    
-def tomaDeReservas():
+
+def tomaDeReservas(reservas):
     fecha_actual = obtenerFechaActual()
     print("Solamente Puede elegir la fecha dentro de un Año!")
     anio_de_reserva = inputEnteroConSalida(-1, fecha_actual["anio"], fecha_actual["anio"]+1,"**Ingrese el año de la reserva: ")
@@ -207,8 +215,19 @@ def tomaDeReservas():
     
     nombre = input("*****Ingrese apellido de la reserva: ")
     apellido_reserva = nombre.title()
-    reservas.append([len(reservas) + 1, mes_de_busqueda, dia_reservado, anio_de_reserva, apellido_reserva])
-    mostrarReservas()
+
+    nuevaReserva = {
+        "fecha": {
+            "mes": mes_de_busqueda,
+            "dia": dia_reservado,
+            "año": anio_de_reserva,
+        },
+        "apellido": apellido_reserva,
+        "id": len(reservas) + 1
+    }
+
+    reservas.append(nuevaReserva)
+    mostrarReservas(reservas)
 
 
 def main():
@@ -221,10 +240,10 @@ def main():
         opcion = inputEnteroConSalida(-1, 1, 4, "*Ingrese 1 para reservar, 2 para ver todas las reservas, 3 para eliminar, 4 para filtrar, o -1 para salir: ")
         
         if(opcion == 1):
-            tomaDeReservas()
+            tomaDeReservas(reservas)
 
         elif(opcion == 2):
-            mostrarReservas()
+            mostrarReservas(mostrarReservas)
         
         elif(opcion == 3):
             id = inputEnteroConSalida(-1, 0, 1000, "**Ingrese el numero de id de la reserva a eliminar: ")
@@ -236,23 +255,23 @@ def main():
                 busqueda = inputEnteroConSalida(-1, 1,len(reservas)+1, "**Ingrese el numero del ID que quiere buscar: ")
                 if busqueda == -1:
                     break
-                filtrarReservas(reservas, busqueda,id_index)
+                filtrarReservas(reservas, busqueda, "id")
             elif (filtro == 2):
                 busqueda = inputEnteroConSalida(-1, 1,12, "**Ingrese el numero del mes que quiere buscar: ")
                 if busqueda == -1:
                     break
-                filtrarReservas(reservas, busqueda,mes_index)
+                filtrarReservas(reservas, busqueda, "mes")
             elif (filtro == 3):
                 busqueda = inputEnteroConSalida(-1, 2024,2026, "**Ingrese el numero del año que quiere buscar: ")
                 if busqueda == -1:
                     break
-                filtrarReservas(reservas, busqueda,año_index)
+                filtrarReservas(reservas, busqueda, "año")
             elif (filtro == 4):
                 titulo = str(input("**Ingrese el usuario que quiere buscar: "))
                 busqueda = titulo.title()
                 if busqueda == -1:
                     break
-                filtrarReservas(reservas, busqueda,apellido_index)
+                filtrarReservas(reservas, busqueda, "apellido")
 
             
         print("-"*50)
