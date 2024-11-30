@@ -213,13 +213,14 @@ def tomaDeReservas():
     mostrarReservas()
 
 def cambiarReserva():
+    mostrarReservas(reservas)  # Mostrar todas las reservas
     id_reserva = inputEnteroConSalida(-1, 1, len(reservas), "**Ingrese el ID de la reserva que desea cambiar (o -1 para volver): ")
     if id_reserva == -1:
         return
 
     for reserva in reservas:
-        if reserva[id_index] == id_reserva:
-            print(f"Reserva actual: ID={reserva[id_index]}, Mes={obtenerNombreMes(reserva[mes_index])}, Día={reserva[dia_index]}, Año={reserva[año_index]}, Usuario={reserva[apellido_index]}")
+        if reserva["id"] == id_reserva:
+            print(f"Reserva actual: ID={reserva['id']}, Mes={obtenerNombreMes(reserva['fecha']['mes'])}, Día={reserva['fecha']['dia']}, Año={reserva['fecha']['año']}, Hora={reserva['hora']}, Usuario={reserva['apellido']}")
             nuevo_anio = inputEnteroConSalida(-1, obtenerFechaActual()["anio"], obtenerFechaActual()["anio"] + 1, "Ingrese el nuevo año de la reserva (o -1 para volver): ")
             if nuevo_anio == -1:
                 return
@@ -235,11 +236,19 @@ def cambiarReserva():
                 nuevo_dia = inputEnteroConSalida(-1, 1, mesesMatriz(nuevo_mes, nuevo_anio), "****Ingrese el día que quiere reservar (o -1 para volver): ")
                 if nuevo_dia == -1:
                     return
-                if (nuevo_dia in dias_ocupados) or \
-                   (nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes == obtenerFechaActual()["mes"] and nuevo_dia <= obtenerFechaActual()["dia"]) or \
+                if (nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes == obtenerFechaActual()["mes"] and nuevo_dia <= obtenerFechaActual()["dia"]) or \
                    (nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes < obtenerFechaActual()["mes"]) or \
                    (nuevo_anio > obtenerFechaActual()["anio"] and nuevo_mes > obtenerFechaActual()["mes"] and nuevo_dia < obtenerFechaActual()["dia"]):
                     print("El día seleccionado no está disponible. Por favor, elija otro día.")
+                else:
+                    break
+
+            while True:
+                nueva_hora = inputEnteroConSalida(-1, 0, 23, "Ingrese la nueva hora de la reserva (0 a 23) (o -1 para volver): ")
+                if nueva_hora == -1:
+                    return
+                if not chequearDisponibilad(nuevo_mes, nuevo_dia, nuevo_anio, nueva_hora):
+                    print("La hora seleccionada no está disponible. Por favor, elija otra hora.")
                 else:
                     break
 
@@ -249,72 +258,69 @@ def cambiarReserva():
             elif cambiar_nombre == 1:
                 nuevo_usuario = input("Ingrese el nuevo apellido de la reserva: ").title()
             else:
-                nuevo_usuario = reserva[apellido_index]
+                nuevo_usuario = reserva["apellido"]
 
-            if chequearDisponibilad(nuevo_mes, nuevo_dia, nuevo_anio):
-                reserva[mes_index] = nuevo_mes
-                reserva[dia_index] = nuevo_dia
-                reserva[año_index] = nuevo_anio
-                reserva[apellido_index] = nuevo_usuario
-                print("Reserva cambiada exitosamente.")
-            else:
-                print("La nueva fecha no está disponible.")
+            reserva["fecha"]["mes"] = nuevo_mes
+            reserva["fecha"]["dia"] = nuevo_dia
+            reserva["fecha"]["año"] = nuevo_anio
+            reserva["apellido"] = nuevo_usuario
+            reserva["hora"] = nueva_hora
+            print("Reserva cambiada exitosamente.")
             break
     else:
         print(f"No se encontró una reserva con el ID {id_reserva}")
-    mostrarReservas()
+    mostrarReservas(reservas)  # Mostrar todas las reservas al final
+
+def eliminarTodasLasReservas(reservas):
+    if not reservas:
+        print("No hay reservas para eliminar.")
+        return
+    
+    confirmar = input("¿Estás seguro de que deseas eliminar todas las reservas? (S/N): ").strip().lower()
+    if confirmar == 's':
+        reservas.clear()
+        print("Todas las reservas han sido eliminadas.")
+    else:
+        print("Operación cancelada.")
 
 def main():
-    print("-"*50)
-    print("Bienvenido al sistema de reserva de salas de reuniones.")
-    continuar = True
-    
-    while continuar:
-        opcion = inputEnteroConSalida(-1, 1, 5, "*Ingrese 1 para reservar, 2 para ver todas las reservas, 3 para eliminar, 4 para filtrar, 5 para cambiar una reserva, o -1 para salir: ")
-        
+    print("Sistema de reservas de salas")
+    generarReservasRandom(10, reservas)
+    while True:
+        opcion = inputEnteroConSalida(-1, 1, 6, 
+            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Cambiar reserva, 6: Borrar todas las reservas, -1: Salir: ")
         if opcion == -1:
-            respuesta = inputEnteroConSalida(-1, 1, 2, "**¿Está seguro que desea salir? Ingrese 1 para sí o -1 para volver: ")
-            if respuesta == 1:
-                continuar = False
+            print("Gracias por usar el sistema de reservas.")
+            break
         elif opcion == 1:
-            tomaDeReservas()
+            tomaDeReservas(reservas)
         elif opcion == 2:
-            mostrarReservas()
+            mostrarReservas(reservas)
         elif opcion == 3:
-            id = inputEnteroConSalida(-1, 0, 1000, "**Ingrese el numero de id de la reserva a eliminar (o -1 para volver): ")
-            if id == -1:
-                continue
-            eliminarReserva(reservas, id)
+            id_reserva = inputEnteroConSalida(-1, 1, 1000, "ID de la reserva a eliminar: ")
+            if id_reserva != -1:
+                eliminarReserva(reservas, id_reserva)
         elif opcion == 4:
-            filtro = inputEnteroConSalida(-1, 1, 4, "1 para filtrar por ID, 2 para filtrar por Mes, 3 para filtrar por Año, 4 para filtrar por Usuario, o -1 para volver: ")
-            if filtro == -1:
-                continue
-            elif filtro == 1:
-                busqueda = inputEnteroConSalida(-1, 1, len(reservas) + 1, "**Ingrese el numero del ID que quiere buscar (o -1 para volver): ")
-                if busqueda == -1:
-                    continue
-                filtrarReservas(reservas, busqueda, id_index)
+            print("Opciones de filtro: 1: ID, 2: Mes, 3: Año, 4: Usuario")
+            filtro = inputEnteroConSalida(-1, 1, 4, "Seleccione un tipo de filtro: ")
+            if filtro == 1:
+                busqueda = inputEnteroConSalida(-1, 1, len(reservas) + 1, "Ingrese el ID que desea buscar: ")
+                if busqueda != -1:
+                    filtrarReservas(reservas, busqueda, "id")
             elif filtro == 2:
-                busqueda = inputEnteroConSalida(-1, 1, 12, "**Ingrese el numero del mes que quiere buscar (o -1 para volver): ")
-                if busqueda == -1:
-                    continue
-                filtrarReservas(reservas, busqueda, mes_index)
+                busqueda = inputEnteroConSalida(-1, 1, 12, "Ingrese el número del mes que desea buscar: ")
+                if busqueda != -1:
+                    filtrarReservas(reservas, busqueda, "mes")
             elif filtro == 3:
-                busqueda = inputEnteroConSalida(-1, 2024, 2026, "**Ingrese el numero del año que quiere buscar (o -1 para volver): ")
-                if busqueda == -1:
-                    continue
-                filtrarReservas(reservas, busqueda, año_index)
+                busqueda = inputEnteroConSalida(-1, 2024, 2026, "Ingrese el año que desea buscar: ")
+                if busqueda != -1:
+                    filtrarReservas(reservas, busqueda, "año")
             elif filtro == 4:
-                titulo = str(input("**Ingrese el usuario que quiere buscar (o -1 para volver): "))
-                if titulo == '-1':
-                    continue
-                busqueda = titulo.title()
-                filtrarReservas(reservas, busqueda, apellido_index)
+                busqueda = input("Ingrese el apellido del usuario que desea buscar: ").title()
+                filtrarReservas(reservas, busqueda, "apellido")
         elif opcion == 5:
             cambiarReserva()
-
-        print("-"*50)
-
-    print("Gracias por usar el sistema de reservas. Fin.\n")
+        elif opcion == 6:
+            eliminarTodasLasReservas(reservas)
 
 main()
