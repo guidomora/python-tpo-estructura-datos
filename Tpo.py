@@ -35,11 +35,16 @@ def obtenerNombreMes(mes):
     return meses[mes - 1] if 1 <= mes <= 12 else "Mes inválido"
 
 # Verifica si una fecha está disponible o no.
-def chequearDisponibilad(mes, dia, anio):
+# MOD
+def chequearDisponibilad(mes, dia, anio, hora):
     for reserva in reservas:
-        if reserva["fecha"]["mes"] == mes and reserva["fecha"]["dia"] == dia and reserva["fecha"]["año"] == anio:
+        if (reserva["fecha"]["mes"] == mes and
+            reserva["fecha"]["dia"] == dia and
+            reserva["fecha"]["año"] == anio and
+            reserva["hora"] == hora):  # Comparar también la hora
             return False
     return True
+
 
 #   Función para obtener la fecha actual.
 def obtenerFechaActual():
@@ -47,33 +52,50 @@ def obtenerFechaActual():
     return {"mes": ahora.month, "dia": ahora.day, "anio": ahora.year}
 
 # Genera reservas aleatorias, respetando la disponibilidad.
-def generarReservasRandom(cantidad, reservas, anio):
+def generarReservasRandom(cantidad, reservas):
     fecha_actual = obtenerFechaActual()
     personas = ["Torrez", "Alvarez", "Ramon", "Gallego", "Corral", "Merlo", "Von Reth", "Rossi", "Guerrero", "Morales"]
-    for _ in range(cantidad):
-        anio = random.randint(2024, 2025)
-        mes = random.randint(1, 12)
-        dia = random.randint(1, mesesMatriz(mes, anio))
-        if fechaValida(dia, mes, anio) and chequearDisponibilad(mes, dia, anio):
-            persona = random.choice(personas)
-            nueva_reserva = {
-                "fecha": {"dia": dia, "mes": mes, "año": anio},
-                "apellido": persona,
-                "id": max([r["id"] for r in reservas], default=0) + 1
-            }
-            reservas.append(nueva_reserva)
+    
+    for i in range(cantidad):
+        while True:  # Repetir hasta encontrar una fecha y horario válidos
+            anio = random.randint(fecha_actual["anio"], 2025)
+            mes = random.randint(
+                fecha_actual["mes"] if anio == fecha_actual["anio"] else 1, 
+                12
+            )
+            dia = random.randint(
+                fecha_actual["dia"] if anio == fecha_actual["anio"] and mes == fecha_actual["mes"] else 1, 
+                mesesMatriz(mes, anio)
+            )
+            
+            hora = random.randint(8, 20)  # Generar una hora aleatoria entre 8 y 20
+            
+            if fechaValida(dia, mes, anio) and chequearDisponibilad(mes, dia, anio, hora):
+                persona = random.choice(personas)
+                nueva_reserva = {
+                    "fecha": {"dia": dia, "mes": mes, "año": anio},
+                    "hora": hora,  # Añadir el horario a la reserva
+                    "apellido": persona,
+                    "id": max([r["id"] for r in reservas], default=0) + 1
+                }
+                reservas.append(nueva_reserva)
+                break  # Salir del bucle cuando se encuentra una fecha y horario válidos
+
 
 # Muestra todas las reservas en formato tabla
+# MOD
 def mostrarReservas(reservas):
-    print("-" * 50)
-    print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7} {'USUARIO':<10}")
+    print("-" * 60)
+    print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7} {'HORA':<5} {'USUARIO':<10}")
     for reserva in reservas:
         id_reserva = reserva["id"]
         mes_reserva = obtenerNombreMes(reserva["fecha"]["mes"])
         dia_reserva = reserva["fecha"]["dia"]
         anio_reserva = reserva["fecha"]["año"]
+        hora_reserva = reserva["hora"]
         nom_reserva = reserva["apellido"]
-        print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7} {nom_reserva:<10}')
+        print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7} {hora_reserva:<5} {nom_reserva:<10}')
+
 
 # Elimina una reserva según su ID.
 def eliminarReserva(reservas, id):
@@ -108,10 +130,11 @@ def filtrarReservas(reservas, busqueda, clave_filtro):
     mostrarReservas(reservas_filtro)
 
 # Función para tomar una reserva del usuario.
+# MOD
 def tomaDeReservas(reservas):
     fecha_actual = datetime.now()
-    print("¡Puede elegir una fecha dentro de un año desde la fecha actual!")
-    
+    print("¡Puede elegir una fecha y hora dentro de un año desde la fecha actual!")
+
     anio_de_reserva = inputEnteroConSalida(-1, fecha_actual.year, fecha_actual.year + 1, 
                                            "**Ingrese el año de la reserva: ")
     if anio_de_reserva == -1:
@@ -135,17 +158,15 @@ def tomaDeReservas(reservas):
     if dia_reservado == -1:
         return
 
-    # Crear objeto datetime para la fecha de reserva y la actual.
-    fecha_reserva = datetime(anio_de_reserva, mes_de_busqueda, dia_reservado)
+    hora_reservada = inputEnteroConSalida(-1, 0, 23, 
+                                          "*****Ingrese la hora (0 a 23) que desea reservar: ")
+    if hora_reservada == -1:
+        return
 
-    # Validar si la fecha está expirada o reservada.
-    while fecha_reserva <= fecha_actual or dia_reservado in dias_ocupados:
-        print("Fecha no disponible o inválida.")
-        dia_reservado = inputEnteroConSalida(-1, 1, mesesMatriz(mes_de_busqueda, anio_de_reserva),
-                                             "****Ingrese otra fecha válida: ")
-        if dia_reservado == -1:
-            return
-        fecha_reserva = datetime(anio_de_reserva, mes_de_busqueda, dia_reservado)
+    # Validar la disponibilidad de fecha y hora
+    if not chequearDisponibilad(mes_de_busqueda, dia_reservado, anio_de_reserva, hora_reservada):
+        print("Fecha y hora no disponibles.")
+        return
 
     apellido_reserva = input("*****Ingrese apellido de la reserva: ").title()
 
@@ -155,6 +176,7 @@ def tomaDeReservas(reservas):
             "dia": dia_reservado,
             "año": anio_de_reserva,
         },
+        "hora": hora_reservada,  # Añadir la hora
         "apellido": apellido_reserva,
         "id": len(reservas) + 1
     }
@@ -162,6 +184,7 @@ def tomaDeReservas(reservas):
     reservas.append(nueva_reserva)
     print("Reserva realizada exitosamente:")
     mostrarReservas(reservas)
+
 
 
 # Entrada de un entero con validación
@@ -214,10 +237,10 @@ def eliminarTodasLasReservas(reservas):
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
-    generarReservasRandom(10, reservas, 2024)
+    generarReservasRandom(10, reservas)
     while True:
         opcion = inputEnteroConSalida(-1, 1, 5, 
-            "1: Reservar, 2: Mostrar, 3: Eliminar, 4: Filtrar, 5: Borrar todas las reservas, -1: Salir: ")
+            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, -1: Salir: ")
         if opcion == -1:
             print("Gracias por usar el sistema de reservas.")
             break
