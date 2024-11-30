@@ -3,6 +3,8 @@ import random
 
 usuarios = []
 reservas = []
+PRIMER_HORARIO = 9
+ULTIMO_HORARIO = 18
 
 # Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
@@ -57,7 +59,7 @@ def generarReservasRandom(cantidad, reservas):
     personas = ["Torrez", "Alvarez", "Ramon", "Gallego", "Corral", "Merlo", "Von Reth", "Rossi", "Guerrero", "Morales"]
     
     for i in range(cantidad):
-        while True:  # Repetir hasta encontrar una fecha y horario válidos
+        while True:
             anio = random.randint(fecha_actual["anio"], 2025)
             mes = random.randint(
                 fecha_actual["mes"] if anio == fecha_actual["anio"] else 1, 
@@ -68,7 +70,7 @@ def generarReservasRandom(cantidad, reservas):
                 mesesMatriz(mes, anio)
             )
             
-            hora = random.randint(8, 20)  # Generar una hora aleatoria entre 8 y 20
+            hora = random.randint(PRIMER_HORARIO, ULTIMO_HORARIO)  
             
             if fechaValida(dia, mes, anio) and chequearDisponibilad(mes, dia, anio, hora):
                 persona = random.choice(personas)
@@ -108,7 +110,27 @@ def eliminarReserva(reservas, id):
 
 # Obtiene los días ocupados para un mes específico.
 def obtenerDiasOcupadosPorMes(mes, anio):
-    return [reserva["fecha"]["dia"] for reserva in reservas if reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio]
+    cantidad_de_horarios = ULTIMO_HORARIO - PRIMER_HORARIO ## chequeamos cuantos horarios deberiamos tener ocupados para no mostrar ese dia
+    dias = dict.fromkeys(range(mesesMatriz(mes, anio), 1), 0)
+
+    for reserva in reservas:
+        if reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio:
+            dia = reserva["fecha"]["dia"]
+            if dia in dias:  # Verificar que el día esté en el rango válido
+                dias[dia] += 1
+
+    print(dias)
+    return [dia for dia, ocupados in dias.items() if ocupados >= cantidad_de_horarios]
+
+
+def mostrarDisponibildidadHoraria(reservas, mes, anio, dia):
+    horarios_usados = [hora for hora in range(PRIMER_HORARIO, ULTIMO_HORARIO + 1)]
+    for reserva in reservas:
+        if reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio and dia == reserva["fecha"]["dia"]:
+            horarios_usados.remove(reserva["hora"])
+    print('horarios disponibles')
+    horarios_disponibles = '-'.join(str(hora) for hora in horarios_usados)
+    print(horarios_disponibles)
 
 # Muestra un calendario mensual con días ocupados marcados como 'X'.
 def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
@@ -157,9 +179,11 @@ def tomaDeReservas(reservas):
                                          "****Ingrese el día que quiere reservar: ")
     if dia_reservado == -1:
         return
+    
+    mostrarDisponibildidadHoraria(reservas, mes_de_busqueda, anio_de_reserva, dia_reservado)
 
-    hora_reservada = inputEnteroConSalida(-1, 0, 23, 
-                                          "*****Ingrese la hora (0 a 23) que desea reservar: ")
+    hora_reservada = inputEnteroConSalida(-1, PRIMER_HORARIO, ULTIMO_HORARIO, 
+                                          "*****Ingrese la hora (9 a 18) que desea reservar: ")
     if hora_reservada == -1:
         return
 
