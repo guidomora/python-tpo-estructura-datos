@@ -258,6 +258,29 @@ def tomaDeReservas(reservas):
     print("Reserva realizada exitosamente:")
     mostrarReservas(reservas)
 
+def obtenerMesConMasReservas(reservas):
+    if not reservas:
+        print("No hay reservas registradas.")
+        return None
+
+    # Crear un diccionario para contar las reservas por mes
+    conteo_mensual = {}
+    for reserva in reservas:
+        mes = reserva["fecha"]["mes"]
+        if mes not in conteo_mensual:
+            conteo_mensual[mes] = 0
+        conteo_mensual[mes] += 1
+
+    # Encontrar el mes con más reservas
+    mes_mas_reservas = max(conteo_mensual, key=conteo_mensual.get)
+    cantidad_reservas = conteo_mensual[mes_mas_reservas]
+
+    # Obtener el nombre del mes
+    nombre_mes = obtenerNombreMes(mes_mas_reservas)
+    print("-" * 50)
+    print(f"El mes con más reservas es {nombre_mes} con {cantidad_reservas} reservas.")
+    print("-" * 50)
+    return nombre_mes, cantidad_reservas
 
 
 # Entrada de un entero con validación
@@ -354,8 +377,8 @@ def main():
     print("Sistema de reservas de salas")
     # generarReservasRandom(10, reservas)
     while True:
-        opcion = inputEnteroConSalida(-1, 1, 5, 
-            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, -1: Salir: ")
+        opcion = inputEnteroConSalida(-1, 1, 6, 
+            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, 6: Mes con mas reservas -1: Salir: ")
         if opcion == -1:
             print("Gracias por usar el sistema de reservas.")
             break
@@ -371,6 +394,8 @@ def main():
             filtradoOpciones()
         elif opcion == 5:
             eliminarTodasLasReservas(reservas, './reservas_db.json')
+        elif opcion == 6:
+            obtenerMesConMasReservas(reservas)
     
 
 
