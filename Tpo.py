@@ -1,10 +1,35 @@
 from datetime import datetime
 import random
+import json
 
 usuarios = []
-reservas = []
+# reservas = []
 PRIMER_HORARIO = 9
 ULTIMO_HORARIO = 18
+
+# Función para cargar reservas desde el archivo JSON
+def cargarReservasDesdeArchivo():
+    try:
+        with open('./reservas_db.json', 'r') as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return []  # Si el archivo no existe, retorna una lista vacía.
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON.")
+        return []
+
+
+
+reservas = cargarReservasDesdeArchivo()
+
+
+# Función para guardar reservas en el archivo JSON
+def guardarReservasEnArchivo(reservas):
+    try:
+        with open('./reservas_db.json', 'w') as archivo:
+            json.dump(reservas, archivo, indent=4)
+    except IOError as e:
+        print(f"Error al guardar en el archivo JSON: {e}")
 
 # Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
@@ -81,12 +106,14 @@ def generarReservasRandom(cantidad, reservas):
                     "id": max([r["id"] for r in reservas], default=0) + 1
                 }
                 reservas.append(nueva_reserva)
+                guardarReservasEnArchivo(reservas)
                 break  # Salir del bucle cuando se encuentra una fecha y horario válidos
 
 
 # Muestra todas las reservas en formato tabla
 # MOD
 def mostrarReservas(reservas):
+    reservas = cargarReservasDesdeArchivo()
     print("-" * 60)
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7} {'HORA':<5} {'USUARIO':<10}")
     for reserva in reservas:
@@ -206,6 +233,7 @@ def tomaDeReservas(reservas):
     }
 
     reservas.append(nueva_reserva)
+    guardarReservasEnArchivo(reservas)
     print("Reserva realizada exitosamente:")
     mostrarReservas(reservas)
 
@@ -233,14 +261,15 @@ def filtrarReservas(reservas, busqueda, clave_filtro):
     # Mostrar las reservas filtradas.
     if reservas_filtro:
         print("-" * 50)
-        print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7}{'USUARIO':<10}")
+        print(f"{'ID':<3} {'MES':<10} {'DIA':<5}{'HORA':<5}{'AÑO':<7}{'USUARIO':<10}")
         for reserva in reservas_filtro:
             id_reserva = reserva["id"]
             mes_reserva = obtenerNombreMes(reserva["fecha"]["mes"])
             dia_reserva = reserva["fecha"]["dia"]
             anio_reserva = reserva["fecha"]["año"]
             nom_reserva = reserva["apellido"]
-            print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7}{nom_reserva:<10}')
+            hora = reserva["hora"]
+            print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5}{hora:<5}{anio_reserva:<7}{nom_reserva:<10}')
     else:
         print("No se encontraron reservas que coincidan con el filtro.")
 
@@ -261,7 +290,7 @@ def eliminarTodasLasReservas(reservas):
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
-    generarReservasRandom(10, reservas)
+    # generarReservasRandom(10, reservas)
     while True:
         opcion = inputEnteroConSalida(-1, 1, 5, 
             "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, -1: Salir: ")
@@ -296,7 +325,7 @@ def main():
                 filtrarReservas(reservas, busqueda, "apellido")
         elif opcion == 5:
             eliminarTodasLasReservas(reservas)
-
+    
 
 
 main()
