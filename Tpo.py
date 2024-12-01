@@ -123,7 +123,7 @@ def generarReservasRandom(cantidad, reservas):
 
 # Muestra todas las reservas en formato tabla
 # MOD
-def mostrarReservas(reservas):
+def mostrarReservas():
     reservas = cargarReservasDesdeArchivo()
     print("-" * 60)
     print(f"{'ID':<3} {'MES':<10} {'DIA':<5} {'AÑO':<7} {'HORA':<5} {'USUARIO':<10}")
@@ -198,9 +198,6 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
         print(fila)
 
 # Filtra reservas según un criterio dado.
-def filtrarReservas(reservas, busqueda, clave_filtro):
-    reservas_filtro = [reserva for reserva in reservas if reserva["fecha"].get(clave_filtro, reserva.get(clave_filtro)) == busqueda]
-    mostrarReservas(reservas_filtro)
 
 # Función para tomar una reserva del usuario.
 # MOD
@@ -276,12 +273,27 @@ def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
             print("Entrada no válida.")
 
 # Función para tomar una reserva del usuario.
-def filtrarReservas(reservas, busqueda, clave_filtro):
-    if clave_filtro in ["mes", "dia", "año"]:
-        reservas_filtro = [reserva for reserva in reservas if reserva["fecha"][clave_filtro] == busqueda]
-    else:
-        reservas_filtro = [reserva for reserva in reservas if reserva[clave_filtro] == busqueda]
+def filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice=0, reservas_filtro=None):
+    if reservas_filtro is None:
+        reservas_filtro = []
+    
+    if indice >= len(reservas):
+        return reservas_filtro
 
+    # Condición de filtrado considerando "fecha"
+    if clave_filtro in ["mes", "dia", "año"]:
+        if reservas[indice]["fecha"][clave_filtro] == busqueda:
+            reservas_filtro.append(reservas[indice])
+    else:
+        if reservas[indice][clave_filtro] == busqueda:
+            reservas_filtro.append(reservas[indice])
+
+    return filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice + 1, reservas_filtro)
+
+# Función para mostrar las reservas usando recursividad
+def filtrarReservas(reservas, busqueda, clave_filtro):
+    reservas_filtro = filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro)
+    
     # Mostrar las reservas filtradas.
     if reservas_filtro:
         print("-" * 50)
@@ -295,7 +307,8 @@ def filtrarReservas(reservas, busqueda, clave_filtro):
             hora = reserva["hora"]
             print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5}{hora:<5}{anio_reserva:<7}{nom_reserva:<10}')
     else:
-        print("No se encontraron reservas que coincidan con el filtro.")
+        print(f"No se encontraron reservas que coincidan con el {clave_filtro} dado.")
+
 
 # Función para eliminar todas las reservas.
 def eliminarTodasLasReservas(reservas, archivo):
@@ -317,7 +330,25 @@ def eliminarTodasLasReservas(reservas, archivo):
         print("Operación cancelada.")
 
 
-
+def filtradoOpciones():
+        print("Opciones de filtro: 1: ID, 2: Mes, 3: Año, 4: Usuario")
+        filtro = inputEnteroConSalida(-1, 1, 4, "Seleccione un tipo de filtro: ")
+        if filtro == 1:
+            busqueda = inputEnteroConSalida(-1, 1, len(reservas) + 1, "Ingrese el ID que desea buscar: ")
+            if busqueda != -1:
+                filtrarReservas(reservas, busqueda, "id")
+        elif filtro == 2:
+            busqueda = inputEnteroConSalida(-1, 1, 12, "Ingrese el número del mes que desea buscar: ")
+            if busqueda != -1:
+                filtrarReservas(reservas, busqueda, "mes")
+        elif filtro == 3:
+            busqueda = inputEnteroConSalida(-1, 2024, 2026, "Ingrese el año que desea buscar: ")
+            if busqueda != -1:
+                filtrarReservas(reservas, busqueda, "año")
+        elif filtro == 4:
+            busqueda = input("Ingrese el apellido del usuario que desea buscar: ").title()
+            filtrarReservas(reservas, busqueda, "apellido")
+        
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
@@ -331,29 +362,13 @@ def main():
         elif opcion == 1:
             tomaDeReservas(reservas)
         elif opcion == 2:
-            mostrarReservas(reservas)
+            mostrarReservas()
         elif opcion == 3:
             id_reserva = inputEnteroConSalida(-1, 1, 1000, "ID de la reserva a eliminar: ")
             if id_reserva != -1:
                 eliminarReserva(reservas, id_reserva, './reservas_db.json')
         elif opcion == 4:
-            print("Opciones de filtro: 1: ID, 2: Mes, 3: Año, 4: Usuario")
-            filtro = inputEnteroConSalida(-1, 1, 4, "Seleccione un tipo de filtro: ")
-            if filtro == 1:
-                busqueda = inputEnteroConSalida(-1, 1, len(reservas) + 1, "Ingrese el ID que desea buscar: ")
-                if busqueda != -1:
-                    filtrarReservas(reservas, busqueda, "id")
-            elif filtro == 2:
-                busqueda = inputEnteroConSalida(-1, 1, 12, "Ingrese el número del mes que desea buscar: ")
-                if busqueda != -1:
-                    filtrarReservas(reservas, busqueda, "mes")
-            elif filtro == 3:
-                busqueda = inputEnteroConSalida(-1, 2024, 2026, "Ingrese el año que desea buscar: ")
-                if busqueda != -1:
-                    filtrarReservas(reservas, busqueda, "año")
-            elif filtro == 4:
-                busqueda = input("Ingrese el apellido del usuario que desea buscar: ").title()
-                filtrarReservas(reservas, busqueda, "apellido")
+            filtradoOpciones()
         elif opcion == 5:
             eliminarTodasLasReservas(reservas, './reservas_db.json')
     
