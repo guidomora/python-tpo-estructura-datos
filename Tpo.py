@@ -10,13 +10,19 @@ ULTIMO_HORARIO = 18
 # Función para cargar reservas desde el archivo JSON
 def cargarReservasDesdeArchivo():
     try:
-        with open('./reservas_db.json', 'r') as archivo:
-            return json.load(archivo)
+        archivo = open('./reservas_db.json', 'r')  # Abrir el archivo
+        reservas = json.load(archivo)  # Cargar los datos del archivo
+        archivo.close()  # Cerrar el archivo manualmente
+        return reservas
     except FileNotFoundError:
         return []  # Si el archivo no existe, retorna una lista vacía.
     except json.JSONDecodeError:
         print("Error al leer el archivo JSON.")
         return []
+    except Exception as e:  # Captura de cualquier otro error
+        print(f"Ocurrió un error inesperado: {e}")
+        return []
+
 
 
 
@@ -25,11 +31,16 @@ reservas = cargarReservasDesdeArchivo()
 
 # Función para guardar reservas en el archivo JSON
 def guardarReservasEnArchivo(reservas):
+    archivo = None
     try:
-        with open('./reservas_db.json', 'w') as archivo:
-            json.dump(reservas, archivo, indent=4)
+        archivo = open('./reservas_db.json', 'w')  # Abrir el archivo en modo escritura
+        json.dump(reservas, archivo, indent=4)  # Guardar los datos en formato JSON
     except IOError as e:
         print(f"Error al guardar en el archivo JSON: {e}")
+    finally:
+        if archivo:
+            archivo.close()  # Asegurar que el archivo se cierre siempre
+
 
 # Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
@@ -127,13 +138,26 @@ def mostrarReservas(reservas):
 
 
 # Elimina una reserva según su ID.
-def eliminarReserva(reservas, id):
+def eliminarReserva(reservas, id, archivo):
+    # Buscar la reserva en la lista
     for i, reserva in enumerate(reservas):
         if reserva["id"] == id:
-            del reservas[i]
+            del reservas[i]  # Eliminar la reserva de la lista
             print("Reserva eliminada exitosamente")
+            
+            # Guardar la lista actualizada en el archivo
+            f = open(archivo, "w")  # Abrir el archivo en modo escritura
+            try:
+                json.dump(reservas, f, indent=4)  # Escribir los datos
+            except IOError as e:
+                print(f"Error al guardar en el archivo JSON: {e}")
+            finally:
+                f.close()  # Cerrar el archivo manualmente
+            
             return
+    
     print(f"No se encontró una reserva con el ID {id}")
+
 
 # Obtiene los días ocupados para un mes específico.
 def obtenerDiasOcupadosPorMes(mes, anio):
@@ -197,7 +221,7 @@ def tomaDeReservas(reservas):
                                                "***Ingrese el número del mes de la reserva: ")
 
     if mes_de_busqueda == -1:
-        return
+        return 
 
     dias_ocupados = obtenerDiasOcupadosPorMes(mes_de_busqueda, anio_de_reserva)
     mostrarDisponibilidadMensual(mes_de_busqueda, dias_ocupados, anio_de_reserva)
@@ -274,17 +298,24 @@ def filtrarReservas(reservas, busqueda, clave_filtro):
         print("No se encontraron reservas que coincidan con el filtro.")
 
 # Función para eliminar todas las reservas.
-def eliminarTodasLasReservas(reservas):
+def eliminarTodasLasReservas(reservas, archivo):
     if not reservas:
         print("No hay reservas para eliminar.")
         return
     
     confirmar = input("¿Estás seguro de que deseas eliminar todas las reservas? (S/N): ").strip().lower()
     if confirmar == 's':
-        reservas.clear()
+        reservas.clear()  # Vaciar la lista en memoria
+
+        # Guardar los cambios en el archivo
+        f = open(archivo, "w")
+        json.dump(reservas, f, indent=4)
+        f.close()  # Cerrar el archivo manualmente
+
         print("Todas las reservas han sido eliminadas.")
     else:
         print("Operación cancelada.")
+
 
 
 # Programa principal
@@ -304,7 +335,7 @@ def main():
         elif opcion == 3:
             id_reserva = inputEnteroConSalida(-1, 1, 1000, "ID de la reserva a eliminar: ")
             if id_reserva != -1:
-                eliminarReserva(reservas, id_reserva)
+                eliminarReserva(reservas, id_reserva, './reservas_db.json')
         elif opcion == 4:
             print("Opciones de filtro: 1: ID, 2: Mes, 3: Año, 4: Usuario")
             filtro = inputEnteroConSalida(-1, 1, 4, "Seleccione un tipo de filtro: ")
@@ -324,7 +355,7 @@ def main():
                 busqueda = input("Ingrese el apellido del usuario que desea buscar: ").title()
                 filtrarReservas(reservas, busqueda, "apellido")
         elif opcion == 5:
-            eliminarTodasLasReservas(reservas)
+            eliminarTodasLasReservas(reservas, './reservas_db.json')
     
 
 
