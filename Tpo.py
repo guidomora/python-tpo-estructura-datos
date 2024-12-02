@@ -3,23 +3,21 @@ import random
 import json
 
 usuarios = []
-# reservas = []
 PRIMER_HORARIO = 9
 ULTIMO_HORARIO = 18
 
-# Función para cargar reservas desde el archivo JSON
 def cargarReservasDesdeArchivo():
     try:
-        archivo = open('./reservas_db.json', 'r')  # Abrir el archivo
-        reservas = json.load(archivo)  # Cargar los datos del archivo
-        archivo.close()  # Cerrar el archivo manualmente
+        archivo = open('./reservas_db.json', 'r')  
+        reservas = json.load(archivo)  
+        archivo.close()  
         return reservas
     except FileNotFoundError:
-        return []  # Si el archivo no existe, retorna una lista vacía.
+        return []  
     except json.JSONDecodeError:
         print("Error al leer el archivo JSON.")
         return []
-    except Exception as e:  # Captura de cualquier otro error
+    except Exception as e:  
         print(f"Ocurrió un error inesperado: {e}")
         return []
 
@@ -29,24 +27,21 @@ def cargarReservasDesdeArchivo():
 reservas = cargarReservasDesdeArchivo()
 
 
-# Función para guardar reservas en el archivo JSON
 def guardarReservasEnArchivo(reservas):
     archivo = None
     try:
-        archivo = open('./reservas_db.json', 'w')  # Abrir el archivo en modo escritura
-        json.dump(reservas, archivo, indent=4)  # Guardar los datos en formato JSON
+        archivo = open('./reservas_db.json', 'w')  
+        json.dump(reservas, archivo, indent=4)  
     except IOError as e:
         print(f"Error al guardar en el archivo JSON: {e}")
     finally:
         if archivo:
-            archivo.close()  # Asegurar que el archivo se cierre siempre
+            archivo.close()  
 
 
-# Función para determinar si un año es bisiesto o no.
 def esBisiesto(anio):
     return anio % 4 == 0 and (anio % 100 != 0 or anio % 400 == 0)
 
-# Determina la asignación de días según el mes.
 def mesesMatriz(mes, anio):
     dias = 31
     match mes:
@@ -58,7 +53,6 @@ def mesesMatriz(mes, anio):
             dias = 28 if not esBisiesto(anio) else 29
     return dias
 
-# Valida si una fecha es válida utilizando "datetime".
 def fechaValida(dia, mes, anio):
     try:
         datetime(anio, mes, dia)
@@ -66,30 +60,27 @@ def fechaValida(dia, mes, anio):
     except ValueError:
         return False
 
-# Devuelve el nombre de un mes dependiendo de su número.
 def obtenerNombreMes(mes):
     meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", 
              "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     return meses[mes - 1] if 1 <= mes <= 12 else "Mes inválido"
 
-# Verifica si una fecha está disponible o no.
-# MOD
+
 def chequearDisponibilad(mes, dia, anio, hora):
     for reserva in reservas:
         if (reserva["fecha"]["mes"] == mes and
             reserva["fecha"]["dia"] == dia and
             reserva["fecha"]["año"] == anio and
-            reserva["hora"] == hora):  # Comparar también la hora
+            reserva["hora"] == hora):  
             return False
     return True
 
 
-#   Función para obtener la fecha actual.
+
 def obtenerFechaActual():
     ahora = datetime.now()
     return {"mes": ahora.month, "dia": ahora.day, "anio": ahora.year}
 
-# Genera reservas aleatorias, respetando la disponibilidad.
 def generarReservasRandom(cantidad, reservas):
     fecha_actual = obtenerFechaActual()
     personas = ["Torrez", "Alvarez", "Ramon", "Gallego", "Corral", "Merlo", "Von Reth", "Rossi", "Guerrero", "Morales"]
@@ -112,17 +103,15 @@ def generarReservasRandom(cantidad, reservas):
                 persona = random.choice(personas)
                 nueva_reserva = {
                     "fecha": {"dia": dia, "mes": mes, "año": anio},
-                    "hora": hora,  # Añadir el horario a la reserva
+                    "hora": hora,  
                     "apellido": persona,
                     "id": max([r["id"] for r in reservas], default=0) + 1
                 }
                 reservas.append(nueva_reserva)
                 guardarReservasEnArchivo(reservas)
-                break  # Salir del bucle cuando se encuentra una fecha y horario válidos
+                break  
 
 
-# Muestra todas las reservas en formato tabla
-# MOD
 def mostrarReservas():
     reservas = cargarReservasDesdeArchivo()
     print("-" * 60)
@@ -137,37 +126,33 @@ def mostrarReservas():
         print(f'{id_reserva:<3} {mes_reserva:<10} {dia_reserva:<5} {anio_reserva:<7} {hora_reserva:<5} {nom_reserva:<10}')
 
 
-# Elimina una reserva según su ID.
 def eliminarReserva(reservas, id, archivo):
-    # Buscar la reserva en la lista
     for i, reserva in enumerate(reservas):
         if reserva["id"] == id:
-            del reservas[i]  # Eliminar la reserva de la lista
+            del reservas[i]  
             print("Reserva eliminada exitosamente")
             
-            # Guardar la lista actualizada en el archivo
-            f = open(archivo, "w")  # Abrir el archivo en modo escritura
+            f = open(archivo, "w")  
             try:
-                json.dump(reservas, f, indent=4)  # Escribir los datos
+                json.dump(reservas, f, indent=4)
             except IOError as e:
                 print(f"Error al guardar en el archivo JSON: {e}")
             finally:
-                f.close()  # Cerrar el archivo manualmente
+                f.close() 
             
             return
     
     print(f"No se encontró una reserva con el ID {id}")
 
 
-# Obtiene los días ocupados para un mes específico.
 def obtenerDiasOcupadosPorMes(mes, anio):
-    cantidad_de_horarios = ULTIMO_HORARIO - PRIMER_HORARIO ## chequeamos cuantos horarios deberiamos tener ocupados para no mostrar ese dia
+    cantidad_de_horarios = ULTIMO_HORARIO - PRIMER_HORARIO 
     dias = dict.fromkeys(range(mesesMatriz(mes, anio), 1), 0)
 
     for reserva in reservas:
         if reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio:
             dia = reserva["fecha"]["dia"]
-            if dia in dias:  # Verificar que el día esté en el rango válido
+            if dia in dias:  
                 dias[dia] += 1
 
     print(dias)
@@ -183,7 +168,6 @@ def mostrarDisponibildidadHoraria(reservas, mes, anio, dia):
     horarios_disponibles = '-'.join(str(hora) for hora in horarios_usados)
     print(horarios_disponibles)
 
-# Muestra un calendario mensual con días ocupados marcados como 'X'.
 def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
     dias = mesesMatriz(mes, anio)
     print("-" * 50)
@@ -197,10 +181,6 @@ def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
             fila += f"{'X' if d in dias_ocupados else d:>3}"
         print(fila)
 
-# Filtra reservas según un criterio dado.
-
-# Función para tomar una reserva del usuario.
-# MOD
 def tomaDeReservas(reservas):
     fecha_actual = datetime.now()
     print("¡Puede elegir una fecha y hora dentro de un año desde la fecha actual!")
@@ -235,7 +215,6 @@ def tomaDeReservas(reservas):
     if hora_reservada == -1:
         return
 
-    # Validar la disponibilidad de fecha y hora
     if not chequearDisponibilad(mes_de_busqueda, dia_reservado, anio_de_reserva, hora_reservada):
         print("Fecha y hora no disponibles.")
         return
@@ -248,7 +227,7 @@ def tomaDeReservas(reservas):
             "dia": dia_reservado,
             "año": anio_de_reserva,
         },
-        "hora": hora_reservada,  # Añadir la hora
+        "hora": hora_reservada,  
         "apellido": apellido_reserva,
         "id": len(reservas) + 1
     }
@@ -263,7 +242,6 @@ def obtenerMesConMasReservas(reservas):
         print("No hay reservas registradas.")
         return None
 
-    # Crear un diccionario para contar las reservas por mes
     conteo_mensual = {}
     for reserva in reservas:
         mes = reserva["fecha"]["mes"]
@@ -271,11 +249,9 @@ def obtenerMesConMasReservas(reservas):
             conteo_mensual[mes] = 0
         conteo_mensual[mes] += 1
 
-    # Encontrar el mes con más reservas
     mes_mas_reservas = max(conteo_mensual, key=conteo_mensual.get)
     cantidad_reservas = conteo_mensual[mes_mas_reservas]
 
-    # Obtener el nombre del mes
     nombre_mes = obtenerNombreMes(mes_mas_reservas)
     print("-" * 50)
     print(f"El mes con más reservas es {nombre_mes} con {cantidad_reservas} reservas.")
@@ -283,7 +259,6 @@ def obtenerMesConMasReservas(reservas):
     return nombre_mes, cantidad_reservas
 
 
-# Entrada de un entero con validación
 def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
     while True:
         try:
@@ -295,7 +270,6 @@ def inputEnteroConSalida(numero_salida, valor_minimo, valor_maximo, texto):
         except ValueError:
             print("Entrada no válida.")
 
-# Función para tomar una reserva del usuario.
 def filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice=0, reservas_filtro=None):
     if reservas_filtro is None:
         reservas_filtro = []
@@ -303,7 +277,6 @@ def filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice=0, 
     if indice >= len(reservas):
         return reservas_filtro
 
-    # Condición de filtrado considerando "fecha"
     if clave_filtro in ["mes", "dia", "año"]:
         if reservas[indice]["fecha"][clave_filtro] == busqueda:
             reservas_filtro.append(reservas[indice])
@@ -313,11 +286,9 @@ def filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice=0, 
 
     return filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro, indice + 1, reservas_filtro)
 
-# Función para mostrar las reservas usando recursividad
 def filtrarReservas(reservas, busqueda, clave_filtro):
     reservas_filtro = filtrarReservasRecursivoGeneral(reservas, busqueda, clave_filtro)
     
-    # Mostrar las reservas filtradas.
     if reservas_filtro:
         print("-" * 50)
         print(f"{'ID':<3} {'MES':<10} {'DIA':<5}{'HORA':<5}{'AÑO':<7}{'USUARIO':<10}")
@@ -333,7 +304,6 @@ def filtrarReservas(reservas, busqueda, clave_filtro):
         print(f"No se encontraron reservas que coincidan con el {clave_filtro} dado.")
 
 
-# Función para eliminar todas las reservas.
 def eliminarTodasLasReservas(reservas, archivo):
     if not reservas:
         print("No hay reservas para eliminar.")
@@ -341,12 +311,11 @@ def eliminarTodasLasReservas(reservas, archivo):
     
     confirmar = input("¿Estás seguro de que deseas eliminar todas las reservas? (S/N): ").strip().lower()
     if confirmar == 's':
-        reservas.clear()  # Vaciar la lista en memoria
+        reservas.clear()  
 
-        # Guardar los cambios en el archivo
         f = open(archivo, "w")
         json.dump(reservas, f, indent=4)
-        f.close()  # Cerrar el archivo manualmente
+        f.close()  
 
         print("Todas las reservas han sido eliminadas.")
     else:
@@ -427,14 +396,12 @@ def cambiarReserva():
             else:
                 nuevo_usuario = reserva["apellido"]
 
-            # Actualizar los datos de la reserva
             reserva["fecha"]["mes"] = nuevo_mes
             reserva["fecha"]["dia"] = nuevo_dia
             reserva["fecha"]["año"] = nuevo_anio
             reserva["apellido"] = nuevo_usuario
             reserva["hora"] = nueva_hora
 
-            # Guardar los cambios en el archivo JSON
             guardarReservasEnArchivo(reservas)
             print("Reserva cambiada exitosamente.")
             break
