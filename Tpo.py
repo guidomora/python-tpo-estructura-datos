@@ -206,16 +206,16 @@ def tomaDeReservas(reservas):
     print("¡Puede elegir una fecha y hora dentro de un año desde la fecha actual!")
 
     anio_de_reserva = inputEnteroConSalida(-1, fecha_actual.year, fecha_actual.year + 1, 
-                                           "**Ingrese el año de la reserva: ")
+                                           "**Ingrese el año de la reserva (o -1 para volver): ")
     if anio_de_reserva == -1:
         return
 
     if anio_de_reserva == fecha_actual.year:
         mes_de_busqueda = inputEnteroConSalida(-1, fecha_actual.month, 12, 
-                                               "***Ingrese el número del mes de la reserva: ")
+                                               "***Ingrese el número del mes de la reserva: (o -1 para volver) ")
     else:
         mes_de_busqueda = inputEnteroConSalida(-1, 1, 12, 
-                                               "***Ingrese el número del mes de la reserva: ")
+                                               "***Ingrese el número del mes de la reserva (o -1 para volver): ")
 
     if mes_de_busqueda == -1:
         return 
@@ -224,14 +224,14 @@ def tomaDeReservas(reservas):
     mostrarDisponibilidadMensual(mes_de_busqueda, dias_ocupados, anio_de_reserva)
 
     dia_reservado = inputEnteroConSalida(-1, 1, mesesMatriz(mes_de_busqueda, anio_de_reserva),
-                                         "****Ingrese el día que quiere reservar: ")
+                                         "****Ingrese el día que quiere reservar (o -1 para volver): ")
     if dia_reservado == -1:
         return
     
     mostrarDisponibildidadHoraria(reservas, mes_de_busqueda, anio_de_reserva, dia_reservado)
 
     hora_reservada = inputEnteroConSalida(-1, PRIMER_HORARIO, ULTIMO_HORARIO, 
-                                          "*****Ingrese la hora (9 a 18) que desea reservar: ")
+                                          "*****Ingrese la hora (9 a 18) que desea reservar: (o -1 para volver) ")
     if hora_reservada == -1:
         return
 
@@ -386,9 +386,14 @@ def cambiarReserva():
             if nuevo_anio == -1:
                 return
 
-            nuevo_mes = inputEnteroConSalida(-1, 1, 12, "Ingrese el nuevo mes de la reserva (o -1 para volver): ")
-            if nuevo_mes == -1:
-                return
+            while True:
+                nuevo_mes = inputEnteroConSalida(-1, 1, 12, "Ingrese el nuevo mes de la reserva (o -1 para volver): ")
+                if nuevo_mes == -1:
+                    return
+                if nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes < obtenerFechaActual()["mes"]:
+                    print("No puede seleccionar un mes anterior al mes actual. Por favor, elija otro mes.")
+                else:
+                    break
 
             dias_ocupados = obtenerDiasOcupadosPorMes(nuevo_mes, nuevo_anio)
             mostrarDisponibilidadMensual(nuevo_mes, dias_ocupados, nuevo_anio)
@@ -437,7 +442,7 @@ def cambiarReserva():
         print(f"No se encontró una reserva con el ID {id_reserva}")
 
     mostrarReservas()
-
+    
         
 # Programa principal
 def main():
