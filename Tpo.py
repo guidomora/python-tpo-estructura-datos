@@ -406,7 +406,7 @@ def cambiarReserva():
                     break
 
             while True:
-                nueva_hora = inputEnteroConSalida(-1, 0, 23, "Ingrese la nueva hora de la reserva (0 a 23) (o -1 para volver): ")
+                nueva_hora = inputEnteroConSalida(-1, 9, 18, "Ingrese la nueva hora de la reserva (9 a 18) (o -1 para volver): ")
                 if nueva_hora == -1:
                     return
                 if not chequearDisponibilad(nuevo_mes, nuevo_dia, nuevo_anio, nueva_hora):
