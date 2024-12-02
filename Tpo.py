@@ -256,7 +256,7 @@ def tomaDeReservas(reservas):
     reservas.append(nueva_reserva)
     guardarReservasEnArchivo(reservas)
     print("Reserva realizada exitosamente:")
-    mostrarReservas(reservas)
+    mostrarReservas()
 
 def obtenerMesConMasReservas(reservas):
     if not reservas:
@@ -371,14 +371,81 @@ def filtradoOpciones():
         elif filtro == 4:
             busqueda = input("Ingrese el apellido del usuario que desea buscar: ").title()
             filtrarReservas(reservas, busqueda, "apellido")
+            
+def cambiarReserva():
+    mostrarReservas()
+    id_reserva = inputEnteroConSalida(-1, 1, len(reservas), "**Ingrese el ID de la reserva que desea cambiar (o -1 para volver): ")
+    if id_reserva == -1:
+        return
+
+    for reserva in reservas:
+        if reserva["id"] == id_reserva:
+            print(f"Reserva actual: ID={reserva['id']}, Mes={obtenerNombreMes(reserva['fecha']['mes'])}, Día={reserva['fecha']['dia']}, Año={reserva['fecha']['año']}, Hora={reserva['hora']}, Usuario={reserva['apellido']}")
+
+            nuevo_anio = inputEnteroConSalida(-1, obtenerFechaActual()["anio"], obtenerFechaActual()["anio"] + 1, "Ingrese el nuevo año de la reserva (o -1 para volver): ")
+            if nuevo_anio == -1:
+                return
+
+            nuevo_mes = inputEnteroConSalida(-1, 1, 12, "Ingrese el nuevo mes de la reserva (o -1 para volver): ")
+            if nuevo_mes == -1:
+                return
+
+            dias_ocupados = obtenerDiasOcupadosPorMes(nuevo_mes, nuevo_anio)
+            mostrarDisponibilidadMensual(nuevo_mes, dias_ocupados, nuevo_anio)
+
+            while True:
+                nuevo_dia = inputEnteroConSalida(-1, 1, mesesMatriz(nuevo_mes, nuevo_anio), "**Ingrese el día que quiere reservar (o -1 para volver): ")
+                if nuevo_dia == -1:
+                    return
+                if (nuevo_dia in dias_ocupados) or \
+                   (nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes == obtenerFechaActual()["mes"] and nuevo_dia <= obtenerFechaActual()["dia"]) or \
+                   (nuevo_anio == obtenerFechaActual()["anio"] and nuevo_mes < obtenerFechaActual()["mes"]) or \
+                   (nuevo_anio > obtenerFechaActual()["anio"] and nuevo_mes > obtenerFechaActual()["mes"] and nuevo_dia < obtenerFechaActual()["dia"]):
+                    print("El día seleccionado no está disponible. Por favor, elija otro día.")
+                else:
+                    break
+
+            while True:
+                nueva_hora = inputEnteroConSalida(-1, 0, 23, "Ingrese la nueva hora de la reserva (0 a 23) (o -1 para volver): ")
+                if nueva_hora == -1:
+                    return
+                if not chequearDisponibilad(nuevo_mes, nuevo_dia, nuevo_anio, nueva_hora):
+                    print("La hora seleccionada no está disponible. Por favor, elija otra hora.")
+                else:
+                    break
+
+            cambiar_nombre = inputEnteroConSalida(-1, 1, 2, "¿Desea cambiar el nombre de la reserva? Ingrese 1 para sí, 2 para no, o -1 para volver: ")
+            if cambiar_nombre == -1:
+                return
+            elif cambiar_nombre == 1:
+                nuevo_usuario = input("Ingrese el nuevo apellido de la reserva: ").title()
+            else:
+                nuevo_usuario = reserva["apellido"]
+
+            # Actualizar los datos de la reserva
+            reserva["fecha"]["mes"] = nuevo_mes
+            reserva["fecha"]["dia"] = nuevo_dia
+            reserva["fecha"]["año"] = nuevo_anio
+            reserva["apellido"] = nuevo_usuario
+            reserva["hora"] = nueva_hora
+
+            # Guardar los cambios en el archivo JSON
+            guardarReservasEnArchivo(reservas)
+            print("Reserva cambiada exitosamente.")
+            break
+    else:
+        print(f"No se encontró una reserva con el ID {id_reserva}")
+
+    mostrarReservas()
+
         
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
     # generarReservasRandom(10, reservas)
     while True:
-        opcion = inputEnteroConSalida(-1, 1, 6, 
-            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, 6: Mes con mas reservas -1: Salir: ")
+        opcion = inputEnteroConSalida(-1, 1, 7, 
+            "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, 6: Mes con mas reservas, 7: Modificar reserva -1: Salir: ")
         if opcion == -1:
             print("Gracias por usar el sistema de reservas.")
             break
@@ -396,6 +463,8 @@ def main():
             eliminarTodasLasReservas(reservas, './reservas_db.json')
         elif opcion == 6:
             obtenerMesConMasReservas(reservas)
+        elif opcion == 7:
+            cambiarReserva()
     
 
 
