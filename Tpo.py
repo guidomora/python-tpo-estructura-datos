@@ -161,11 +161,15 @@ def obtenerDiasOcupadosPorMes(mes, anio):
 def mostrarDisponibildidadHoraria(reservas, mes, anio, dia):
     horarios_usados = [hora for hora in range(PRIMER_HORARIO, ULTIMO_HORARIO + 1)]
     for reserva in reservas:
-        if reserva["fecha"]["mes"] == mes and reserva["fecha"]["año"] == anio and dia == reserva["fecha"]["dia"]:
-            horarios_usados.remove(reserva["hora"])
-    print('horarios disponibles')
+        if (reserva["fecha"]["mes"] == mes and
+            reserva["fecha"]["año"] == anio and
+            dia == reserva["fecha"]["dia"]):
+            if reserva["hora"] in horarios_usados:  # Verificar si la hora está en la lista
+                horarios_usados.remove(reserva["hora"])
+    print('Horarios disponibles:')
     horarios_disponibles = '-'.join(str(hora) for hora in horarios_usados)
     print(horarios_disponibles)
+
 
 def mostrarDisponibilidadMensual(mes, dias_ocupados, anio):
     dias = mesesMatriz(mes, anio)
@@ -413,7 +417,7 @@ def cambiarReserva():
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
-    generarReservasRandom(10, reservas)
+    # generarReservasRandom(10, reservas)
     while True:
         opcion = inputEnteroConSalida(-1, 1, 7, 
             "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, 6: Mes con mas reservas, 7: Modificar reserva -1: Salir: ")
