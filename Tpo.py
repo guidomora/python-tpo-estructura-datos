@@ -28,9 +28,8 @@ reservas = cargarReservasDesdeArchivo()
 
 
 def guardarReservasEnArchivo(reservas):
-    archivo = None
     try:
-        archivo = open('./reservas_db.json', 'w')  
+        archivo = open('./reservas_db.json', 'w') 
         json.dump(reservas, archivo, indent=4)  
     except IOError as e:
         print(f"Error al guardar en el archivo JSON: {e}")
@@ -240,7 +239,7 @@ def tomaDeReservas(reservas):
 def obtenerMesConMasReservas(reservas):
     if not reservas:
         print("No hay reservas registradas.")
-        return None
+        return
 
     conteo_mensual = {}
     for reserva in reservas:
@@ -414,7 +413,7 @@ def cambiarReserva():
 # Programa principal
 def main():
     print("Sistema de reservas de salas")
-    # generarReservasRandom(10, reservas)
+    generarReservasRandom(10, reservas)
     while True:
         opcion = inputEnteroConSalida(-1, 1, 7, 
             "1: Reservar sala, 2: Mostrar reservas, 3: Eliminar reserva, 4: Filtrar reservas, 5: Borrar todas las reservas, 6: Mes con mas reservas, 7: Modificar reserva -1: Salir: ")
